@@ -19,3 +19,7 @@ Repository Structure
   stores index of available whole genome samples from
   [NCBI](https://www.ncbi.nlm.nih.gov/) server and stores the result to a JSON
   file.
+
+* [**/codon_usage.py**](/codon_usage.py) – this script downloads whole genome
+  CRAM file and produces codon usage statistics for each individual in an index
+  file (see `download_index.py`).
