@@ -18,7 +18,7 @@ class CdsPos(NamedTuple):
 
 
 
-def load_ccds() -> List[List[tuple]]:
+def load_ccds() -> List[CdsPos]:
     """Load file with CDS locations within GRCh38 genome as a list of
     :class:`CdsPos`."""
     cds = []
