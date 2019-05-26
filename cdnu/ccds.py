@@ -17,7 +17,6 @@ class CdsPos(NamedTuple):
     """Chromosome name, see :const:`CHROMOSOMES`"""
 
 
-
 def load_ccds() -> List[CdsPos]:
     """Load file with CDS locations within GRCh38 genome as a list of
     :class:`CdsPos`."""
