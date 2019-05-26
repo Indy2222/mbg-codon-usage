@@ -34,6 +34,9 @@ def main():
     records = load_index('index.json')[checkpoint:]
     ccds_list = load_ccds()
 
+    # Sort the CCDS for faster loading from CRAM file.
+    ccds_list.sort(key=lambda cds: (cds.molecule, cds.indexes[0][0]))
+
     with TemporaryDirectory(prefix='mbg_codon_usage_') as tmp_dir:
         logging.info('Created temporary directory %s.', tmp_dir)
 
