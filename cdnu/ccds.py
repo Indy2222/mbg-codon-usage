@@ -39,6 +39,10 @@ def load_ccds() -> List[CdsPos]:
                 # CDS is not yet public
                 continue
 
+            if parts[6] == '-':
+                # CDS strand negative order = reverse-complement
+                continue
+
             locations_str = parts[9]
             if locations_str == '-':
                 # CDS location unknown
