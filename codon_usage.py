@@ -62,6 +62,8 @@ def process_record(tmp_dir, record, ccds_list):
     # TODO: use function supplied by Peta
     cds_list = dummy_cds(seq_file_path, ccds_list)
     for cds in cds_list:
+        if cds is None:
+            continue
         for triplet in chunked(cds, 3):
             stats[''.join(triplet)] += 1
 
