@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from more_itertools import chunked
 
 from cdnu.ccds import load_ccds
+from cdnu.cram import load_cds_list
 from cdnu.ftp import download_file_from_ftp
 from cdnu.record import load_index
 
@@ -59,8 +60,7 @@ def process_record(tmp_dir, record, ccds_list):
 
     logging.info('Going to calculate codon usage statistics...')
     stats = {''.join(codon): 0 for codon in product('ATCG', repeat=3)}
-    # TODO: use function supplied by Peta
-    cds_list = dummy_cds(seq_file_path, ccds_list)
+    cds_list = load_cds_list(seq_file_path, ccds_list)
     for cds in cds_list:
         if cds is None:
             continue
@@ -78,10 +78,6 @@ def process_record(tmp_dir, record, ccds_list):
                  stats_file_path)
     with open(stats_file_path, 'w', encoding='utf-8', newline='\n') as fp:
         json.dump(stats, fp)
-
-
-def dummy_cds(seq_file_path, cds_locations):
-    return ['CTGACC', 'TTGGAA']
 
 
 if __name__ == '__main__':
