@@ -58,10 +58,11 @@ def process_record(tmp_dir, record, ccds_list):
     logging.info('Going to download %s...', record.index_url)
     download_file_from_ftp(record.index_url, index_file_path)
 
-    logging.info('Going to calculate codon usage statistics...')
+    logging.info('Going to load coding sequences from downloaded CRAM file...')
     stats = {''.join(codon): 0 for codon in product('ATCG', repeat=3)}
     cds_list = load_cds_list(seq_file_path, ccds_list)
 
+    logging.info('Going to calculate codon usage statistics...')
     processed_cds = 0
     for cds in cds_list:
         if cds is None:
