@@ -69,6 +69,8 @@ def process_record(tmp_dir, record, ccds_list):
 
         processed_cds += 1
         for triplet in chunked(cds, 3):
+            if '-' in triplet or 'N' in triplet:
+                continue
             stats[''.join(triplet)] += 1
 
     sample_json = {
