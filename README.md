@@ -26,3 +26,8 @@ Repository Structure
 * [**/codon_usage.py**](/codon_usage.py) – this script downloads whole genome
   CRAM file and produces codon usage statistics for each individual in an index
   file (see `download_index.py`).
+
+* [**/reference_codon_usage.json**](/reference_codon_usage.json) – codon usage
+  downloaded from
+  https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=9606 and
+  normalized to values between 0 and 1.
