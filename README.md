@@ -11,6 +11,9 @@ for this purpose.
 Repository Structure
 --------------------
 
+* [**/analyze.py**](/analyze.py) – this scripts produces various statistics and
+  statistical tests over data produced by `codon_usage.py`.
+
 * [**/CCDS.current.txt**](/CCDS.current.txt) –
   [Current Consensus CDS](https://www.ncbi.nlm.nih.gov/projects/CCDS/CcdsBrowse.cgi)
   as downloaded from ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human.
