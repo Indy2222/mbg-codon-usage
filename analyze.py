@@ -3,7 +3,7 @@
 """Analyze codon usage statistics.
 
 Usage:
-  analyze.py basic <stats-path>
+  analyze.py basic <stats-path> --ref-codon-usage <ref-path>
   analyze.py (-h | --help)
 
 Options:
@@ -25,10 +25,29 @@ def main(arguments):
 
 def basic(arguments):
     stats_path = arguments['<stats-path>']
+    ref_path = arguments['<ref-path>']
+
     samples = load_samples(stats_path)
+
+    with open(ref_path) as fp:
+        ref_usage = json.load(fp)
 
     mean_codon_usage = compute_mean_codon_usage(samples)
     print_mean_codon_usage(mean_codon_usage)
+    print_mean_abs_diff(mean_codon_usage, ref_usage)
+
+
+def print_mean_abs_diff(mean_codon_usage, ref_usage):
+    diff_sum = 0
+    for triplet in product('ATCG', repeat=3):
+        triplet = ''.join(triplet)
+        diff_sum += abs(mean_codon_usage[triplet] - ref_usage[triplet])
+    mean_abs_diff = diff_sum / 4**3
+
+    print()
+    print('Mean Absolute Deviation from Reference Codon Usage')
+    print('==================================================\n')
+    print('{:.5f}'.format(mean_abs_diff))
 
 
 def compute_mean_codon_usage(samples: dict) -> dict:
