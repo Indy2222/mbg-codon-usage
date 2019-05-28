@@ -13,9 +13,8 @@ class CdsPos(NamedTuple):
     """2-tuples with start (inclusive) and stop indexes (exclusive) in
     reference genome. Whole CDS can be constructed as concatenation of the
     sub-sequences."""
-    chromosome: str
-    """Chromosome name, see :const:`CHROMOSOMES`"""
-
+    molecule: str
+    """Molecule name, see :const:`CHROMOSOMES`"""
 
 
 def load_ccds() -> List[CdsPos]:
@@ -40,6 +39,10 @@ def load_ccds() -> List[CdsPos]:
                 # CDS is not yet public
                 continue
 
+            if parts[6] == '-':
+                # CDS strand negative order = reverse-complement
+                continue
+
             locations_str = parts[9]
             if locations_str == '-':
                 # CDS location unknown
@@ -62,7 +65,7 @@ def load_ccds() -> List[CdsPos]:
 
             cds.append(CdsPos(
                 ccds_id=ccds_id,
-                chromosome=chromosome,
+                molecule='chr' + chromosome,
                 indexes=locations
             ))
 

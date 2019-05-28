@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from more_itertools import chunked
 
 from cdnu.ccds import load_ccds
+from cdnu.cram import load_cds_list
 from cdnu.ftp import download_file_from_ftp
 from cdnu.record import load_index
 
@@ -32,6 +33,9 @@ def main():
 
     records = load_index('index.json')[checkpoint:]
     ccds_list = load_ccds()
+
+    # Sort the CCDS for faster loading from CRAM file.
+    ccds_list.sort(key=lambda cds: (cds.molecule, cds.indexes[0][0]))
 
     with TemporaryDirectory(prefix='mbg_codon_usage_') as tmp_dir:
         logging.info('Created temporary directory %s.', tmp_dir)
@@ -57,13 +61,27 @@ def process_record(tmp_dir, record, ccds_list):
     logging.info('Going to download %s...', record.index_url)
     download_file_from_ftp(record.index_url, index_file_path)
 
-    logging.info('Going to calculate codon usage statistics...')
+    logging.info('Going to load coding sequences from downloaded CRAM file...')
     stats = {''.join(codon): 0 for codon in product('ATCG', repeat=3)}
-    # TODO: use function supplied by Peta
-    cds_list = dummy_cds(seq_file_path, ccds_list)
+    cds_list = load_cds_list(seq_file_path, ccds_list)
+
+    logging.info('Going to calculate codon usage statistics...')
+    processed_cds = 0
     for cds in cds_list:
+        if cds is None:
+            continue
+
+        processed_cds += 1
         for triplet in chunked(cds, 3):
+            if '-' in triplet or 'N' in triplet:
+                continue
             stats[''.join(triplet)] += 1
+
+    sample_json = {
+        'triplets': stats,
+        'numCds': len(cds_list),
+        'numProcessedCds': processed_cds,
+    }
 
     stats_file_name = record.sample_name + '.json'
     stats_file_dir = os.path.join('stats', record.population)
@@ -75,11 +93,7 @@ def process_record(tmp_dir, record, ccds_list):
     logging.info('Sample has been processed, storing stats to %s...',
                  stats_file_path)
     with open(stats_file_path, 'w', encoding='utf-8', newline='\n') as fp:
-        json.dump(stats, fp)
-
-
-def dummy_cds(seq_file_path, cds_locations):
-    return ['CTGACC', 'TTGGAA']
+        json.dump(sample_json, fp)
 
 
 if __name__ == '__main__':
