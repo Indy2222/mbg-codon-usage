@@ -54,9 +54,7 @@ def print_variances(data):
         variances[triplet] = statistics.variance(
             s[triplet] for p in data.values() for s in p.values())
 
-    print()
-    print('Individual Codon Usage Variances')
-    print('================================\n')
+    print_title('Individual Codon Usage Variances')
     print_triplet_table(variances, '{:10.6f}')
 
 
@@ -66,9 +64,7 @@ def print_mean_abs_diff(mean_codon_usage, ref_usage):
         diff_sum += abs(mean_codon_usage[triplet] - ref_usage[triplet])
     mean_abs_diff = diff_sum / 4**3
 
-    print()
-    print('Mean Absolute Deviation from Reference Codon Usage')
-    print('==================================================\n')
+    print_title('Mean Absolute Deviation from Reference Codon Usage')
     print('{:.5f}'.format(mean_abs_diff))
 
 
@@ -82,8 +78,7 @@ def compute_mean_codon_usage(samples: dict) -> dict:
 
 
 def print_mean_codon_usage(mean_codon_usage: dict):
-    print('Mean Codon Usage')
-    print('================\n')
+    print_title('Mean Codon Usage')
     print_triplet_table(mean_codon_usage)
 
 
@@ -121,6 +116,11 @@ def load_samples(stats_path: str) -> dict:
 def generate_triplets():
     for triplet in product('ATCG', repeat=3):
         yield ''.join(triplet)
+
+
+def print_title(title):
+    print('\n' + title)
+    print('=' * len(title) + '\n')
 
 
 if __name__ == '__main__':
