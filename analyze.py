@@ -12,6 +12,7 @@ Options:
 
 import json
 import os
+import statistics
 from collections import defaultdict
 from itertools import product
 
@@ -36,11 +37,32 @@ def basic(arguments):
     print_mean_codon_usage(mean_codon_usage)
     print_mean_abs_diff(mean_codon_usage, ref_usage)
 
+    normalized = {
+        population: {
+            sample_name: normalize_triplets(sample['triplets'])
+            for sample_name, sample in individuals.items()
+        }
+        for population, individuals in samples.items()
+    }
+
+    print_variances(normalized)
+
+
+def print_variances(data):
+    variances = {}
+    for triplet in generate_triplets():
+        variances[triplet] = statistics.variance(
+            s[triplet] for p in data.values() for s in p.values())
+
+    print()
+    print('Individual Codon Usage Variances')
+    print('================================\n')
+    print_triplet_table(variances, '{:10.6f}')
+
 
 def print_mean_abs_diff(mean_codon_usage, ref_usage):
     diff_sum = 0
-    for triplet in product('ATCG', repeat=3):
-        triplet = ''.join(triplet)
+    for triplet in generate_triplets():
         diff_sum += abs(mean_codon_usage[triplet] - ref_usage[triplet])
     mean_abs_diff = diff_sum / 4**3
 
@@ -62,14 +84,17 @@ def compute_mean_codon_usage(samples: dict) -> dict:
 def print_mean_codon_usage(mean_codon_usage: dict):
     print('Mean Codon Usage')
     print('================\n')
+    print_triplet_table(mean_codon_usage)
 
+
+def print_triplet_table(data, fmt='{:4.1f}'):
     for first_symbol, second_symbol in product('ATCG', repeat=2):
         line = {}
         for third_symbol in 'ATCG':
             triplet = first_symbol + second_symbol + third_symbol
-            line[triplet] = mean_codon_usage[triplet]
+            line[triplet] = data[triplet]
 
-        line = ' | '.join(k + ' | ' + '{:4.1f}'.format(v)
+        line = ' | '.join(k + ' | ' + fmt.format(v)
                           for k, v in line.items())
         print('| ' + line + ' |')
 
@@ -91,6 +116,11 @@ def load_samples(stats_path: str) -> dict:
 
     # Convert to dict
     return dict(samples)
+
+
+def generate_triplets():
+    for triplet in product('ATCG', repeat=3):
+        yield ''.join(triplet)
 
 
 if __name__ == '__main__':
