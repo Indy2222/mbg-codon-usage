@@ -57,6 +57,15 @@ def print_variances(data):
     print_title('Individual Codon Usage Variances')
     print_triplet_table(variances, '{:10.6f}')
 
+    for population, individuals in data.items():
+        variances = {}
+        for triplet in generate_triplets():
+            variances[triplet] = statistics.variance(
+                s[triplet] for s in individuals.values())
+
+        print_title('Codon Usage Variance in Population {}'.format(population))
+        print_triplet_table(variances, '{:10.6f}')
+
 
 def print_mean_abs_diff(mean_codon_usage, ref_usage):
     diff_sum = 0
