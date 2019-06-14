@@ -4,6 +4,7 @@
 
 Usage:
   analyze.py basic <stats-path> --ref-codon-usage <ref-path>
+  analyze.py plot <stats-path>
   analyze.py (-h | --help)
 
 Options:
@@ -16,12 +17,47 @@ import statistics
 from collections import defaultdict
 from itertools import product
 
+import matplotlib.pyplot as plt
+import numpy as np
 from docopt import docopt
+from sklearn.decomposition import PCA
 
 
 def main(arguments):
     if arguments['basic']:
         basic(arguments)
+    elif arguments['plot']:
+        plot(arguments)
+
+
+def plot(arguments):
+    stats_path = arguments['<stats-path>']
+    samples = load_samples(stats_path)
+    normalized = normalize_all(samples)
+
+    data = np.array([
+        [v[''.join(t)] for t in product('ATCG', repeat=3)]
+        for i, p in enumerate(normalized.values()) for v in p.values()
+    ])
+    pca = PCA(n_components=2)
+    pca.fit(data)
+
+    print_title('Explained Variance by Selected Components')
+    print(f' * PC1: {pca.explained_variance_ratio_[0] * 100:0.0f}%')
+    print(f' * PC2: {pca.explained_variance_ratio_[1] * 100:0.0f}%')
+
+    for population, individuals in normalized.items():
+        population_data = np.array([
+            [v[''.join(t)] for t in product('ATCG', repeat=3)]
+            for v in individuals.values()
+        ])
+        population_data = pca.transform(population_data)
+
+        plt.scatter(population_data[:, 0], population_data[:, 1])
+
+    plt.xlabel('PC1')
+    plt.ylabel('PC2')
+    plt.show()
 
 
 def basic(arguments):
@@ -37,15 +73,18 @@ def basic(arguments):
     print_mean_codon_usage(mean_codon_usage)
     print_mean_abs_diff(mean_codon_usage, ref_usage)
 
-    normalized = {
+    normalized = normalize_all(samples)
+    print_variances(normalized)
+
+
+def normalize_all(samples):
+    return {
         population: {
             sample_name: normalize_triplets(sample['triplets'])
             for sample_name, sample in individuals.items()
         }
         for population, individuals in samples.items()
     }
-
-    print_variances(normalized)
 
 
 def print_variances(data):
