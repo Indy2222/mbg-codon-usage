@@ -1,3 +1,4 @@
 CCDS.current.txt filter=lfs diff=lfs merge=lfs -text
 *.cram filter=lfs diff=lfs merge=lfs -text
 *.cram.crai filter=lfs diff=lfs merge=lfs -text
+stats.tar.gz filter=lfs diff=lfs merge=lfs -text
