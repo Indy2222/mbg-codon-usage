@@ -4,3 +4,4 @@ docopt
 numpy==1.16.4
 scikit-learn==0.21.2
 matplotlib==3.1.0
+scipy==1.2.1

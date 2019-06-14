@@ -5,6 +5,7 @@
 Usage:
   analyze.py basic <stats-path> --ref-codon-usage <ref-path>
   analyze.py plot <stats-path>
+  analyze.py manova <stats-path>
   analyze.py (-h | --help)
 
 Options:
@@ -19,6 +20,7 @@ from itertools import product
 
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as stats
 from docopt import docopt
 from sklearn.decomposition import PCA
 
@@ -28,6 +30,47 @@ def main(arguments):
         basic(arguments)
     elif arguments['plot']:
         plot(arguments)
+    elif arguments['manova']:
+        manova(arguments)
+
+
+def manova(arguments):
+    stats_path = arguments['<stats-path>']
+    samples = load_samples(stats_path)
+    normalized = normalize_all(samples)
+
+    accepted_triplets = []
+
+    for triplet in product('ATCG', repeat=3):
+        triplet = ''.join(triplet)
+
+        if triplet in ('TGA', 'TAA', 'TAG'):
+            # skip stop codons
+            continue
+
+        groups = []
+        for population in normalized.values():
+            group = []
+            groups.append(group)
+
+            for individual in population.values():
+                group.append(individual[triplet])
+
+        kruskal = stats.kruskal(*groups)
+        # Use Bonferroni correction
+        if kruskal.pvalue < 0.05 / 61:
+            accepted_triplets.append((kruskal.pvalue, triplet))
+
+    accepted_triplets.sort()
+
+    print_title('Triplets with Differing Usage Among Populations')
+
+    print('+---------+---------+')
+    print('| triplet | p-value |')
+    print('+---------+---------+')
+    for pvalue, triplet in accepted_triplets:
+        print(f'| {triplet}     | {pvalue:0.1e} |')
+    print('+---------+---------+')
 
 
 def plot(arguments):
