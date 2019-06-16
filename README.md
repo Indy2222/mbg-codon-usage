@@ -5,6 +5,10 @@ This repository is trying to investigate differences in codon usage among
 various H. Sapiens populations. We are using data from
 [1000 Genomes Project](http://www.internationalgenome.org/) for this purpose.
 
+License
+-------
+
+See [LICENSE](/LICENSE).
 
 Repository Structure
 --------------------
