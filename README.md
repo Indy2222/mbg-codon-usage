@@ -11,6 +11,9 @@ for this purpose.
 Repository Structure
 --------------------
 
+* [**/analyze.py**](/analyze.py) – this scripts produces various statistics and
+  statistical tests over data produced by `codon_usage.py`.
+
 * [**/CCDS.current.txt**](/CCDS.current.txt) –
   [Current Consensus CDS](https://www.ncbi.nlm.nih.gov/projects/CCDS/CcdsBrowse.cgi)
   as downloaded from ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human.
@@ -23,3 +26,8 @@ Repository Structure
 * [**/codon_usage.py**](/codon_usage.py) – this script downloads whole genome
   CRAM file and produces codon usage statistics for each individual in an index
   file (see `download_index.py`).
+
+* [**/reference_codon_usage.json**](/reference_codon_usage.json) – codon usage
+  downloaded from
+  https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=9606 and
+  normalized to values between 0 and 1.
