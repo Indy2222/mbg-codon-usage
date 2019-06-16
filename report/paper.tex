@@ -1,0 +1,255 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\addbibresource{sources.bib}
+
+\title{Codon Usage Differences Among Homo Sapiens Populations}
+\author{Martin Indra, Petr Tománek}
+\date{June 2019}
+
+\begin{document}
+
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+
+\begin{abstract}
+  This work focuses on statistical differences in codon usage among 26 human
+  populations tracked by 1000 Genomes Project.
+\end{abstract}
+
+\clearpage
+
+\section{Introduction}
+
+The number of available whole-genome sequences of H. Sapiens DNA is steadily
+growing which brings possibility to do advanced statistical analyses on the
+data. In this article we examine codon usage differences among human
+individuals from different populations in the following steps:
+
+\begin{enumerate}
+\item We downloaded whole-genome sequences of 426 individuals from 26 different
+  populations.
+\item For each individual, we extracted protein coding sequences and counted
+  number of occurrences of each of 64 possible DNA triplets. Id est we computed
+  codon usage for each individual.
+\item We compare the resulting data with preexisting sources.
+\item We analyze the resulting data with several statistical methods.
+\end{enumerate}
+
+\section{Source Code and Data}
+
+Source code and data behind this report can be obtained in git repository
+hosted on
+\href{https://github.com/Indy2222/mbg-codon-usage}{github.com/Indy2222/mbg-codon-usage}.
+Version of the source codes and data used is tagged as
+\href{https://github.com/Indy2222/mbg-codon-usage/releases/tag/v1.0}{``v1.0''}.
+
+\section{Coding Sequences}
+
+We calculated codon usage for 423 individuals from 26 different populations on
+data provided by 1000 Genomes Project\cite{1000genomes}. We used only
+high-coverage data from phase 3 of the project aligned to
+GRCh38\cite{Schneider072116} reference genome. The data were downloaded from
+FTP server of National Center for Biotechnology Information (NCBI).
+
+To calculate codon usage, we extracted coding sequences identified by Release
+22 of the Consensus Coding Sequence Project (CCDS)\cite{pruitt2009consensus}.
+We extracted only sequences meeting all of the following criteria:
+
+\begin{itemize}
+\item Location of the sequence is known.
+\item Status of the sequence is ``Public''.
+\item The sequence is located on positive strand.
+\item Length of the sequence is a multiple of 3.
+\end{itemize}
+
+We extract coding sequences from CRAM files containing aligned DNA reads. The
+final CDS is constructed from individual exons which are constructed from
+individual reads. We filled missing symbols with ``-''. Figure \ref{fig:cram}
+illustrates exon creation from incomplete sequence.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.3]{figures/exon_reading.png}
+  \caption{Construction of exon from reads}
+  \label{fig:cram}
+\end{figure}
+
+We further filtered coding sequences for each individual separately based on
+the following rules:
+
+\begin{itemize}
+\item The sequence starts with start codon ``ATG''.
+\item The sequence ends with one of stop codons ``TAG'', ``TAA'' and ``TGA''.
+\end{itemize}
+
+When counting codon occurrences we accounted only for triplets with symbols
+``A'', ``C'', ``T'', ``G'' on all three positions, id est we skipped incomplete
+codons.
+
+\section{Overall Codon Usage}
+
+We used formula \ref{eq:total-codon-usage} to calculate overall codon usage of
+all individuals.
+
+\begin{equation}
+  \label{eq:total-codon-usage}
+  f_{t} = 1000 \cdot \frac{\sum_{i = 1}^N u_{i, t}}{\sum_{i = 1}^N \sum_{j =
+      1}^{64} u_{i, j}}
+\end{equation}
+
+Where $f_{t}$ is frequency of codon $t$ per one thousand codons, $N = 423$ is
+number of sampled individuals and $u_{i, j}$ is number of occurrences of codon
+$j$ in all coding sequences of individual $i$.
+
+The overall codon usage of our data sample is given by table
+\ref{table:overall-codon-usage}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|lr|lr|lr|lr|}
+    \hline
+    AAA & 25.5 & AAT & 17.5 & AAC & 19.0 & AAG & 31.9 \\
+    ATA &  7.7 & ATT & 16.0 & ATC & 20.0 & ATG & 21.6 \\
+    ACA & 15.6 & ACT & 13.5 & ACC & 18.3 & ACG &  6.1 \\
+    AGA & 12.3 & AGT & 13.0 & AGC & 20.0 & AGG & 12.0 \\
+    TAA &  0.8 & TAT & 11.9 & TAC & 14.4 & TAG &  0.6 \\
+    TTA &  7.9 & TTT & 17.0 & TTC & 19.0 & TTG & 13.0 \\
+    TCA & 12.9 & TCT & 15.7 & TCC & 17.7 & TCG &  4.5 \\
+    TGA &  1.3 & TGT & 10.5 & TGC & 11.9 & TGG & 12.1 \\
+    CAA & 12.9 & CAT & 11.1 & CAC & 15.0 & CAG & 34.7 \\
+    CTA &  7.2 & CTT & 13.3 & CTC & 18.5 & CTG & 38.1 \\
+    CCA & 17.8 & CCT & 18.0 & CCC & 20.0 & CCG &  7.0 \\
+    CGA &  6.4 & CGT &  4.5 & CGC & 10.0 & CGG & 11.6 \\
+    GAA & 30.8 & GAT & 22.9 & GAC & 25.2 & GAG & 40.2 \\
+    GTA &  7.3 & GTT & 11.2 & GTC & 13.9 & GTG & 27.2 \\
+    GCA & 16.4 & GCT & 18.5 & GCC & 27.2 & GCG &  7.2 \\
+    GGA & 16.7 & GGT & 10.7 & GGC & 21.4 & GGG & 16.0 \\
+    \hline
+  \end{tabular}
+  \caption{Overall codon usage given as per-thousand occurrences}
+  \label{table:overall-codon-usage}
+\end{table}
+
+We compared codon usage of our data with data from codon usage database at
+\href{https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=9606}{kazusa.or.jp}
+\cite{nakamura2000codon} and found very small mean absolute deviation of
+$0.45$.
+
+\section{Individual Codon Usage}
+
+We used formula \ref{eq:individual-codon-usage} to calculate codon usage of
+each individual.
+
+\begin{equation}
+  \label{eq:individual-codon-usage}
+  f_{i, t} = 1000 \cdot \frac{u_{i, t}}{\sum_{j = 1}^{64} u_{i, j}}
+\end{equation}
+
+Where $f_{i, t}$ is per-thousand frequency of codon $t$ for individual $i$ and
+$u_{i, j}$ is number of occurrences of codon $j$ in all coding sequences of
+individual $i$.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.5]{figures/pca.png}
+  \caption{PCA of codon usage, individuals from different populations are
+    depicted in different color}
+  \label{fig:pca}
+\end{figure}
+
+The 426 individuals are split into 26 populations reported in table
+\ref{table:pupulations}. We utilized Principal Component Analysis
+(PCA)\cite{pearson1901liii} dimensionality reduction technique on the
+64-dimensional data to obtain 2D visualization reported in figure
+\ref{fig:pca}. The first two principal components explain 36\% and 14\% of
+variability respectively.
+
+We further used Kruskal–Wallis H test\cite{kruskal1952use} on 61 codons,
+excluding stop codons ``TAG'', ``TAA'' and ``TGA'', in identification of codons
+which have different usage distribution among populations with statistical
+significance. We did Bonferroni correction\cite{dunn1958estimation} to
+compensate for multiple comparison test. We report codons with unequal
+distributions among populations in table \ref{table:diff-codons}, the table
+excludes codons with p-value larger than $\alpha = \frac{0.05}{61}$.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|l|l|l|l|}
+    \hline
+    \bf{Codon} & \bf{p-value} & \bf{Codon} & \bf{p-value} \\
+    \hline
+    TGG & $1.8 \cdot 10^{-13}$ & TAT & $1.6 \cdot 10^{-05}$ \\
+    GAC & $2.1 \cdot 10^{-10}$ & CTG & $2.5 \cdot 10^{-05}$ \\
+    AAG & $7.8 \cdot 10^{-08}$ & CGA & $2.6 \cdot 10^{-05}$ \\
+    AGA & $1.4 \cdot 10^{-07}$ & CGT & $9.1 \cdot 10^{-05}$ \\
+    ATA & $1.8 \cdot 10^{-07}$ & GAA & $2.0 \cdot 10^{-04}$ \\
+    AGG & $8.5 \cdot 10^{-07}$ & GTT & $2.1 \cdot 10^{-04}$ \\
+    GTA & $9.0 \cdot 10^{-07}$ & GGG & $2.8 \cdot 10^{-04}$ \\
+    CAG & $2.2 \cdot 10^{-06}$ & GGA & $2.8 \cdot 10^{-04}$ \\
+    ACA & $2.2 \cdot 10^{-06}$ & TTT & $5.2 \cdot 10^{-04}$ \\
+    GAG & $1.3 \cdot 10^{-05}$ & GAT & $6.0 \cdot 10^{-04}$ \\
+    GTG & $1.4 \cdot 10^{-05}$ & & \\
+    \hline
+  \end{tabular}
+  \caption{Codons with different distribution among different populations}
+  \label{table:diff-codons}
+\end{table}
+
+\begin{table}[p]
+  \centering
+  \begin{tabular}{|l|l|}
+    \hline
+    \bf{Code} & \bf{Populating Description} \\
+    \hline
+    CHB & Han Chinese in Beijing, China \\
+    JPT & Japanese in Tokyo, Japan \\
+    CHS & Southern Han Chinese \\
+    CDX & Chinese Dai in Xishuangbanna, China \\
+    KHV & Kinh in Ho Chi Minh City, Vietnam \\
+    CEU & Utah Residents (CEPH) with Northern and Western European Ancestry \\
+    TSI & Toscani in Italia \\
+    FIN & Finnish in Finland \\
+    GBR & British in England and Scotland \\
+    IBS & Iberian Population in Spain \\
+    YRI & Yoruba in Ibadan, Nigeria \\
+    LWK & Luhya in Webuye, Kenya \\
+    GWD & Gambian in Western Divisions in the Gambia \\
+    MSL & Mende in Sierra Leone \\
+    ESN & Esan in Nigeria \\
+    ASW & Americans of African Ancestry in SW USA \\
+    ACB & African Caribbeans in Barbados \\
+    MXL & Mexican Ancestry from Los Angeles USA \\
+    PUR & Puerto Ricans from Puerto Rico \\
+    CLM & Colombians from Medellin, Colombia \\
+    PEL & Peruvians from Lima, Peru \\
+    GIH & Gujarati Indian from Houston, Texas \\
+    PJL & Punjabi from Lahore, Pakistan \\
+    BEB & Bengali from Bangladesh \\
+    STU & Sri Lankan Tamil from the UK \\
+    ITU & Indian Telugu from the UK \\
+    \hline
+  \end{tabular}
+  \caption{1000 Genome Project populations\cite{1000genomes}}
+  \label{table:pupulations}
+\end{table}
+
+\section{Conclusion}
+
+Our calculated codon usage largely agrees with previously reported statistics.
+We identified 21 codons with different statistical distribution among different
+populations with large statistical significance. However our reporting must be
+taken with caution because our selection of coding sequences may have
+introduced a systematic error.
+
+\clearpage
+\printbibliography
+
+\end{document}
